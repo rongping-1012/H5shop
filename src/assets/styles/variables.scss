@@ -1,0 +1,104 @@
+// ============================================
+// SCSS 变量定义（必须在 CSS 变量之前定义）
+// ============================================
+
+// 主色调
+$primary-color: #e1251b; // 京东红
+$primary-color-light: #ff3b30;
+$primary-gradient: linear-gradient(90deg, #e1251b 0%, #ff3b30 100%);
+
+// 文字颜色
+$text-color: #333; // 主要文字
+$text-color-dark: #333;
+$text-color-normal: #666; // 次要文字
+$text-color-light: #999; // 辅助文字
+$text-color-sub: #666;
+
+// 背景色
+$bg-color: #f7f8fa;
+$bg-color-light: #f7f8fa;
+$bg-color-white: #fff;
+
+// 边框颜色
+$border-color: #f2f2f2;
+$border-color-light: #f2f2f2;
+
+// 圆角
+$radius-base: 8px;
+$radius-lg: 16px;
+$radius-sm: 4px;
+
+// 字体大小
+$font-size-base: 14px;
+$font-size-sm: 12px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-xxl: 20px;
+
+// 阴影
+$box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+$box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+$box-shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.1);
+$box-shadow-primary: 0 10px 28px rgba(225, 37, 27, 0.25);
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-base: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-xxl: 24px;
+
+// ============================================
+// CSS变量（用于运行时动态修改）
+// ============================================
+:root {
+  // 主色调
+  --primary-color: #{$primary-color};
+  --primary-light: #{$primary-color-light};
+  --primary-dark: #c00a0a;
+  
+  // 文字颜色
+  --text-primary: #{$text-color};
+  --text-secondary: #{$text-color-normal};
+  --text-tertiary: #{$text-color-light};
+  --text-placeholder: #ccc;
+  
+  // 背景色
+  --bg-primary: #{$bg-color-white};
+  --bg-secondary: #{$bg-color-light};
+  --bg-tertiary: #f2f3f5;
+  
+  // 边框色
+  --border-color: #{$border-color};
+  --border-light: #f5f5f5;
+  
+  // 圆角
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-base};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: 16px;
+  
+  // 间距
+  --space-xs: #{$spacing-xs};
+  --space-sm: #{$spacing-sm};
+  --space-md: #{$spacing-base};
+  --space-lg: #{$spacing-lg};
+  --space-xl: #{$spacing-xl};
+  
+  // 字体
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 10px;
+  --font-size-sm: #{$font-size-sm};
+  --font-size-md: #{$font-size-base};
+  --font-size-lg: #{$font-size-lg};
+  --font-size-xl: #{$font-size-xl};
+  
+  // 阴影
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  // 价格颜色
+  --price-color: #{$primary-color};
+}

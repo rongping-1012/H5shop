@@ -1,0 +1,18 @@
+# 1. Node.js依赖包
+node_modules/
+
+# 2. 环境变量文件（敏感信息不提交）
+.env.development
+.env.production
+.env.test
+
+# 3. 包管理锁文件
+package-lock.json
+
+# 4. 构建产物（Vite打包后的dist）
+dist/
+
+# 5. 系统/编辑器临时文件
+.DS_Store
+Thumbs.db
+.vscode/

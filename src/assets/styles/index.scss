@@ -1,0 +1,43 @@
+// variables 和 mixins 已在 vite.config.js 中全局注入，无需重复导入
+// utilities 需要使用全局变量，使用 @import（虽然会警告，但功能正常）
+@import './utilities.scss';
+
+// 全局基础样式与通用工具类
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  background: $bg-color;
+  color: $text-color;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.text-ellipsis {
+  @include text-ellipsis(1);
+}
+
+.text-ellipsis-2 {
+  @include text-ellipsis(2);
+}
+
+// Vant 组件主题色配置（京东红）
+:root {
+  --van-primary-color: #{$primary-color};
+  --van-tabbar-item-active-color: #{$primary-color};
+  --van-nav-bar-icon-color: #{$primary-color};
+  --van-sidebar-selected-text-color: #{$primary-color};
+  --van-sidebar-selected-border-color: #{$primary-color};
+}
