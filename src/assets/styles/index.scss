@@ -1,6 +1,6 @@
 // variables 和 mixins 已在 vite.config.js 中全局注入，无需重复导入
 // utilities 需要使用全局变量，使用 @import（虽然会警告，但功能正常）
-@import './utilities.scss';
+@use './utilities.scss';
 
 // 全局基础样式与通用工具类
 * {

@@ -114,8 +114,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-@import '@/assets/styles/mixins.scss';
+@use '@/assets/styles/mixins.scss' as *;
 
 .category-page {
   min-height: 100vh;
@@ -130,6 +129,12 @@ onMounted(() => {
 .sidebar {
   width: 90px;
   background: $bg-color-white;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 
   // 分类选中项的伪元素颜色
   :deep(.van-sidebar-item--select) {

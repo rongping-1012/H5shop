@@ -1,7 +1,7 @@
 <template>
-    <div class="home-container" ref="containerRef">
-      <!-- 轮播图 -->
-      <van-swipe class="banner-swipe" :autoplay="3000" indicator-color="#ee0a24">
+  <div class="home-container" ref="containerRef">
+    <!-- 轮播图 -->
+    <van-swipe class="banner-swipe" :autoplay="3000" indicator-color="#ee0a24">
       <van-swipe-item v-for="(item, index) in bannerList" :key="item.id || index">
         <van-image
           :src="item.image"
@@ -11,139 +11,165 @@
           class="banner-img"
           @click="handleBannerClick(item)"
         />
-        </van-swipe-item>
-      </van-swipe>
+      </van-swipe-item>
+    </van-swipe>
   
-      <!-- 分类入口 -->
-      <div class="category-grid">
-        <div 
-          v-for="(item, index) in categoryList" 
-          :key="index" 
-          class="category-item"
-          @click="goToCategory(item)"
-        >
+    <!-- 分类入口 -->
+    <div class="category-grid">
+      <div 
+        v-for="(item, index) in categoryList" 
+        :key="index" 
+        class="category-item"
+        @click="goToCategory(item)"
+      >
         <van-image :src="item.icon" width="40" height="40" class="category-icon" />
-          <div class="category-name">{{ item.name }}</div>
+        <div class="category-name">{{ item.name }}</div>
+      </div>
+    </div>
+  
+    <!-- 限时抢购 -->
+    <div class="section" v-if="flashSaleList.length > 0">
+      <div class="section-header">
+        <h3 class="section-title">限时抢购</h3>
+        <div class="countdown">
+          <span>距结束</span>
+          <van-count-down :time="flashSaleTime" format="HH:mm:ss">
+            <template #default="timeData">
+              <span class="countdown-item">{{ timeData.hours }}</span>
+              <span class="colon">:</span>
+              <span class="countdown-item">{{ timeData.minutes }}</span>
+              <span class="colon">:</span>
+              <span class="countdown-item">{{ timeData.seconds }}</span>
+            </template>
+          </van-count-down>
+        </div>
+        <div class="more" @click="goToFlashSale">更多<van-icon name="arrow" /></div>
+      </div>
+      <div class="flash-sale-list">
+        <div 
+          v-for="(item, index) in flashSaleList" 
+          :key="index" 
+          class="flash-sale-item"
+          @click="goToGoodsDetail(item)"
+        >
+          <van-image :src="item.image" width="100" height="100" class="goods-image" fit="cover" />
+          <div class="goods-price">
+            <span class="current-price">¥{{ item.price }}</span>
+            <span class="original-price">¥{{ item.originalPrice }}</span>
+          </div>
+          <div class="sale-progress">
+            <div class="progress-bar" :style="{ width: item.salePercent + '%' }" />
+            <span class="sale-text">已售{{ item.soldPercent }}%</span>
+          </div>
         </div>
       </div>
+    </div>
   
-      <!-- 限时抢购 -->
-      <div class="section" v-if="flashSaleList.length > 0">
-        <div class="section-header">
-          <h3 class="section-title">限时抢购</h3>
-          <div class="countdown">
-            <span>距结束</span>
-            <van-count-down :time="flashSaleTime" format="HH:mm:ss">
-              <template #default="timeData">
-                <span class="countdown-item">{{ timeData.hours }}</span>
-                <span class="colon">:</span>
-                <span class="countdown-item">{{ timeData.minutes }}</span>
-                <span class="colon">:</span>
-                <span class="countdown-item">{{ timeData.seconds }}</span>
-              </template>
-            </van-count-down>
-          </div>
-          <div class="more" @click="goToFlashSale">更多<van-icon name="arrow" /></div>
-        </div>
-        <div class="flash-sale-list">
+    <!-- 推荐商品 -->
+    <div class="section">
+      <div class="section-header">
+        <h3 class="section-title">推荐商品</h3>
+        <div class="more" @click="goToGoodsList">更多<van-icon name="arrow" /></div>
+      </div>
+      <van-list
+        v-model:loading="loading"
+        :finished="finished"
+        :finished-text="finishedText"
+        :immediate-check="true"
+        :offset="50"
+        @load="onLoad"
+      >
+        <div class="goods-grid">
           <div 
-            v-for="(item, index) in flashSaleList" 
-            :key="index" 
-            class="flash-sale-item"
+            v-for="(item, index) in recommendList" 
+            :key="item.id || index" 
+            class="goods-item"
             @click="goToGoodsDetail(item)"
           >
-          <van-image :src="item.image" width="100" height="100" class="goods-image" fit="cover" />
-            <div class="goods-price">
-              <span class="current-price">¥{{ item.price }}</span>
-              <span class="original-price">¥{{ item.originalPrice }}</span>
-            </div>
-            <div class="sale-progress">
-              <div class="progress-bar" :style="{ width: item.salePercent + '%' }"></div>
-              <span class="sale-text">已售{{ item.soldPercent }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <!-- 推荐商品 -->
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">推荐商品</h3>
-          <div class="more" @click="goToGoodsList">更多<van-icon name="arrow" /></div>
-        </div>
-        <van-list
-          v-model:loading="loading"
-          :finished="finished"
-          finished-text="没有更多了"
-          @load="onLoad"
-        >
-          <div class="goods-grid">
-            <div 
-              v-for="(item, index) in recommendList" 
-              :key="item.id || index" 
-              class="goods-item"
-              @click="goToGoodsDetail(item)"
-            >
             <van-image :src="item.image" width="100%" :ratio="1" class="goods-image" fit="cover" />
-              <div class="goods-info">
-                <div class="goods-name text-ellipsis-2">{{ item.name }}</div>
-                <div class="goods-desc text-ellipsis">{{ item.desc }}</div>
-                <div class="goods-bottom">
-                  <div class="goods-price">
-                    <span class="current-price">¥{{ item.price }}</span>
-                  <span class="original-price" v-if="item.originalPrice"
-                    >¥{{ item.originalPrice }}</span
-                  >
-                  </div>
+            <div class="goods-info">
+              <div class="goods-name text-ellipsis-2">{{ item.name }}</div>
+              <div class="goods-desc text-ellipsis">{{ item.desc }}</div>
+              <div class="goods-bottom">
+                <div class="goods-price">
+                  <span class="current-price">¥{{ item.price }}</span>
+                  <span v-if="item.originalPrice" class="original-price">¥{{ item.originalPrice }}</span>
+                </div>
                 <van-icon
                   name="cart-circle"
                   color="#ee0a24"
                   size="24"
-                  @click.stop="addToCart(item)"
+                  @click.stop="handleAddToCart(item)"
                 />
-                </div>
               </div>
             </div>
           </div>
-        </van-list>
-      </div>
-
-      <!-- 返回顶部按钮 -->
-      <Teleport to="body">
-        <div
-          v-show="showBackTop"
-          class="back-top-btn"
-          @click="scrollToTop"
-        >
-          <van-icon name="arrow-up" size="20" />
         </div>
-      </Teleport>
+      </van-list>
     </div>
-  </template>
+
+    <!-- 返回顶部按钮 -->
+    <Teleport to="body">
+      <div
+        v-show="showBackTop"
+        class="back-top-btn"
+        @click="scrollToTop"
+      >
+        <van-icon name="arrow-up" size="20" />
+      </div>
+    </Teleport>
+  </div>
+</template>
   
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showFailToast } from 'vant'
 import { getHomeData } from '@/api/home'
-import { getGoodsList } from '@/api/goods'
 import { useCart } from '@/composables/useCart'
+import type { Banner, Category } from '@/types'
+
+interface FlashSaleItem {
+  id: number
+  image: string
+  name: string
+  price: string
+  originalPrice: string
+  salePercent: number
+  soldPercent: number
+}
+
+interface RecommendItem {
+  id: number
+  image: string
+  name: string
+  desc: string
+  price: string
+  originalPrice?: string
+  categoryId?: number
+}
   
 const router = useRouter()
 const { addToCart } = useCart()
-const containerRef = ref(null)
+const containerRef = ref<HTMLElement | null>(null)
 
 // 轮播图 / 分类 / 商品数据（从 mock 接口获取）
-const bannerList = ref([])
-const categoryList = ref([])
+const bannerList = ref<Banner[]>([])
+const categoryList = ref<Category[]>([])
 const flashSaleTime = ref(0)
-const flashSaleList = ref([])
-const recommendList = ref([])
+const flashSaleList = ref<FlashSaleItem[]>([])
+const recommendList = ref<RecommendItem[]>([])
 const loading = ref(false)
 const finished = ref(false)
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20) // 每页加载20条
 const showBackTop = ref(false)
+const totalCount = 1000 // 总共1000条数据
+
+// 完成提示文本
+const finishedText = computed(() => {
+  return `共 ${recommendList.value.length} 条推荐商品`
+})
 
 const loadHomeData = async () => {
   try {
@@ -154,8 +180,7 @@ const loadHomeData = async () => {
       categoryList.value = data.categories || []
       flashSaleTime.value = data.flashSaleTime || 0
       flashSaleList.value = data.flashSaleList || []
-      // 初始加载推荐商品
-      await onLoad()
+      // 推荐商品通过触底加载，不在这里初始化
     }
   } catch (error) {
     console.error('获取首页数据失败:', error)
@@ -163,30 +188,90 @@ const loadHomeData = async () => {
   }
 }
 
+// 生成模拟商品数据
+const generateMockGoods = (startIndex: number, count: number) => {
+  const goodsNames = [
+    'Apple iPhone 15 Pro Max 256GB 深空黑色',
+    '华为 Mate 60 Pro 12GB+512GB 雅川青',
+    '小米14 Ultra 16GB+1TB 钛金属',
+    'OPPO Find X7 Ultra 16GB+512GB 大漠银月',
+    'vivo X100 Pro 16GB+512GB 星迹蓝',
+    '荣耀 Magic6 Pro 16GB+1TB 流云紫',
+    'Samsung Galaxy S24 Ultra 12GB+512GB',
+    'MacBook Pro 16英寸 M3 Max 36GB+1TB',
+    'iPad Pro 12.9英寸 M2 256GB 深空灰',
+    'AirPods Pro 第二代 主动降噪',
+    'Apple Watch Series 9 GPS 45mm',
+    'Sony WH-1000XM5 头戴式降噪耳机',
+    'Nintendo Switch OLED 白色',
+    'PlayStation 5 光驱版',
+    'Xbox Series X 1TB',
+    'Dyson V15 Detect 无线吸尘器',
+    '戴森 Supersonic 吹风机',
+    '飞利浦 电动牙刷 HX9954',
+    '科沃斯 T20 Pro 扫地机器人',
+    '石头 G20 扫拖一体机器人'
+  ]
+
+  const images: string[] = [
+    'https://img01.yzcdn.cn/vant/ipad.jpeg',
+    'https://img01.yzcdn.cn/vant/cat.jpeg',
+    'https://img01.yzcdn.cn/vant/apple-1.jpg',
+    'https://img01.yzcdn.cn/vant/apple-2.jpg',
+    'https://img01.yzcdn.cn/vant/apple-3.jpg'
+  ]
+
+  return Array.from({ length: count }, (_, index) => {
+    const id = startIndex + index + 1
+    const nameIndex = (startIndex + index) % goodsNames.length
+    const imageIndex = (startIndex + index) % images.length
+    const basePrice = Math.floor(Math.random() * 5000) + 1000
+    const hasDiscount = Math.random() > 0.5
+
+    return {
+      id,
+      name: `${goodsNames[nameIndex]} - ${id}`,
+      desc: `这是第 ${id} 件推荐商品的描述信息，展示了商品的详细特点和优势`,
+      price: basePrice.toString(),
+      originalPrice: hasDiscount ? (basePrice + Math.floor(Math.random() * 1000)).toString() : undefined,
+      image: images[imageIndex] || images[0] || 'https://img01.yzcdn.cn/vant/ipad.jpeg',
+      categoryId: Math.floor(Math.random() * 8) + 1 // 添加 categoryId 以兼容 Goods 类型
+    } as RecommendItem
+  })
+}
+
 // 触底加载更多
-const onLoad = async () => {
+const onLoad = async (): Promise<void> => {
+  // 如果已经加载完成，直接返回
+  if (finished.value) {
+    return
+  }
+  
   try {
-    loading.value = true
-    const res = await getGoodsList({
-      page: page.value,
-      pageSize: pageSize.value
-    })
+    // 模拟网络延迟
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
     
-    if (res.code === 200) {
-      const { list, hasMore } = res.data
-      if (list && list.length > 0) {
-        recommendList.value.push(...list)
-        page.value++
-        finished.value = !hasMore
-      } else {
-        finished.value = true
-      }
+    // 计算当前页的数据范围
+    const startIndex = (page.value - 1) * pageSize.value
+    const remainingCount = totalCount - startIndex
+    const currentPageSize = remainingCount > pageSize.value ? pageSize.value : remainingCount
+    
+    if (currentPageSize > 0) {
+      const newList = generateMockGoods(startIndex, currentPageSize)
+      recommendList.value.push(...newList)
+      page.value++
+      
+      // 判断是否还有更多数据
+      finished.value = recommendList.value.length >= totalCount
+    } else {
+      finished.value = true
     }
   } catch (error) {
     console.error('加载商品失败:', error)
     showFailToast('加载失败，请稍后重试')
     finished.value = true
   } finally {
+    // 确保 loading 状态被重置
     loading.value = false
   }
 }
@@ -206,7 +291,7 @@ const scrollToTop = () => {
 }
   
   // 跳转到分类页
-  const goToCategory = (category) => {
+  const goToCategory = (category: Category): void => {
     router.push({
       path: '/category',
       query: { id: category.id, name: category.name }
@@ -214,47 +299,62 @@ const scrollToTop = () => {
   }
   
   // 跳转到限时抢购
-  const goToFlashSale = () => {
+  const goToFlashSale = (): void => {
     router.push('/flashsale')
   }
   
   // 跳转到商品列表
-  const goToGoodsList = () => {
+  const goToGoodsList = (): void => {
     router.push('/goods/list')
   }
   
   // 跳转到商品详情
-  const goToGoodsDetail = (goods) => {
+  const goToGoodsDetail = (goods: RecommendItem | FlashSaleItem): void => {
     router.push({
       path: '/goods/detail',
       query: { id: goods.id }
     })
   }
   
-// 添加商品到购物车（使用 Pinia + mock API）
-// 已通过 useCart 抽象，直接复用逻辑
-  
   // 处理轮播图点击
-  const handleBannerClick = (banner) => {
+  const handleBannerClick = (banner: Banner): void => {
     if (banner.link) {
       // 处理banner跳转逻辑
       console.log('跳转到:', banner.link)
     }
   }
 
-onMounted(() => {
-  loadHomeData()
+  // 添加到购物车（转换 RecommendItem 为 Goods）
+  const handleAddToCart = (item: RecommendItem): void => {
+    const goods = {
+      id: item.id,
+      name: item.name,
+      desc: item.desc,
+      price: parseFloat(item.price),
+      originalPrice: item.originalPrice ? parseFloat(item.originalPrice) : undefined,
+      image: item.image,
+      categoryId: item.categoryId || 1
+    }
+    addToCart(goods)
+  }
+
+onMounted(async () => {
+  await loadHomeData()
   window.addEventListener('scroll', handleScroll)
+  // 初始加载第一页推荐商品（延迟一下确保 DOM 渲染完成）
+  setTimeout(() => {
+    onLoad()
+  }, 100)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
-  </script>
+</script>
   
-  <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-@import '@/assets/styles/mixins.scss';
+<style lang="scss" scoped>
+@use '@/assets/styles/mixins.scss' as *;
+
 
   .home-container {
     padding-bottom: 50px;

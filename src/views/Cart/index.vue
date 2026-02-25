@@ -1,42 +1,46 @@
 <template>
   <div class="cart-page">
-    <div v-if="items.length" class="cart-list">
-      <div v-for="item in items" :key="item.id" class="cart-item-wrapper">
-        <van-checkbox v-model="item.selected" class="check" />
-        <van-swipe-cell class="swipe-cell">
-          <div class="cart-item">
-          <van-image
-            :src="item.image || item.cover"
-            width="80"
-            height="80"
-            fit="cover"
-            class="cover"
-          />
-          <div class="info">
-            <div class="name text-ellipsis-2">{{ item.name }}</div>
-            <div class="price-row">
-              <span class="price">¥{{ item.price }}</span>
+    <!-- 购物车列表（滚动区域） -->
+    <div class="cart-scroll-container">
+      <div v-if="items.length" class="cart-list">
+        <div v-for="item in items" :key="item.id" class="cart-item-wrapper">
+          <van-checkbox v-model="item.selected" class="check" />
+          <van-swipe-cell class="swipe-cell">
+            <div class="cart-item">
+              <van-image
+                :src="item.image || item.cover"
+                width="80"
+                height="80"
+                fit="cover"
+                class="cover"
+              />
+              <div class="info">
+                <div class="name text-ellipsis-2">{{ item.name }}</div>
+                <div class="price-row">
+                  <span class="price">¥{{ item.price }}</span>
+                </div>
+                <div class="actions">
+                  <van-stepper v-model="item.quantity" integer min="1" @change="changeQty(item)" />
+                </div>
+              </div>
             </div>
-            <div class="actions">
-              <van-stepper v-model="item.quantity" integer min="1" @change="changeQty(item)" />
-            </div>
-          </div>
-          </div>
-          <template #right>
-            <van-button
-              square
-              type="danger"
-              text="删除"
-              class="delete-button"
-              @click="remove(item)"
-            />
-          </template>
-        </van-swipe-cell>
+            <template #right>
+              <van-button
+                square
+                type="danger"
+                text="删除"
+                class="delete-button"
+                @click="remove(item)"
+              />
+            </template>
+          </van-swipe-cell>
+        </div>
       </div>
+
+      <BaseEmpty v-else> 购物车还是空的，去逛逛吧～ </BaseEmpty>
     </div>
 
-    <BaseEmpty v-else> 购物车还是空的，去逛逛吧～ </BaseEmpty>
-
+    <!-- 底部结算栏：紧贴 tabbar 上方 -->
     <div v-if="items.length" class="cart-bottom">
       <div class="left">
         <van-checkbox v-model="allChecked" @change="toggleAll">全选</van-checkbox>
@@ -51,10 +55,11 @@
         去结算
       </van-button>
     </div>
-    </div>
-  </template>
+  </div>
+</template>
   
-  <script setup>
+<script setup>
+// 脚本逻辑保持不变
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showFailToast, showToast } from 'vant'
@@ -113,7 +118,6 @@ const submitOrder = async () => {
     }
     await createOrder(payload)
     showToast('订单已创建（mock）')
-    // 简单移除已选商品
     selectedItems.value.forEach((it) => {
       cartStore.removeItem(it.id)
     })
@@ -127,20 +131,35 @@ const submitOrder = async () => {
 onMounted(() => {
   cartStore.fetchCartList()
 })
-  </script>
+</script>
   
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-@import '@/assets/styles/mixins.scss';
+@use '@/assets/styles/mixins.scss' as *;
 
+// 页面容器：占满父容器，禁止整体滚动
 .cart-page {
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   background: $bg-color-light;
-  padding-bottom: 60px;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+// 滚动容器：占满高度 + 底部内边距（避开结算栏）
+.cart-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: $spacing-sm $spacing-base;
+  // 关键：底部内边距 = 结算栏高度 + 安全区域，避免内容被遮挡
+  padding-bottom: calc(54px + 10px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .cart-list {
-  padding: $spacing-sm $spacing-base $spacing-lg;
+  padding-bottom: $spacing-lg;
 }
 
 .cart-item-wrapper {
@@ -209,11 +228,13 @@ onMounted(() => {
   min-width: 80px;
 }
 
+// 结算栏：固定定位 + 紧贴 tabbar 上方
 .cart-bottom {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 50px !important; /* 避开底部 Tabbar，高度约 50px */
+  // 核心：bottom 值 = tabbar 高度（一般 50px） + 安全区域
+  bottom: calc(50px + env(safe-area-inset-bottom));
   height: 54px;
   background: $bg-color-white;
   display: flex;
@@ -222,6 +243,9 @@ onMounted(() => {
   padding: 0 $spacing-base;
   box-shadow: $box-shadow-medium;
   z-index: 1001;
+  // 适配安全区域，防止底部被遮挡
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
 }
 
 .summary {
@@ -237,5 +261,5 @@ onMounted(() => {
 
 .btn-submit {
   min-width: 110px;
-  }
-  </style>
+}
+</style>

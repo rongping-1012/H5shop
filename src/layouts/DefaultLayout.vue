@@ -96,50 +96,41 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-
-.layout-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-container {
-  min-height: 100vh;
-  padding-bottom: 50px; // 给底部导航栏留出空间
-
-  &.with-tabbar {
-    padding-bottom: 100px; // 如果底部有 tabbar，增加 padding
+  .layout-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; // 新增：禁止布局容器滚动
   }
-}
-
-// 适配 iPhone X 系列底部安全区域
-@supports (bottom: env(safe-area-inset-bottom)) {
+  
   .main-container {
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-
+    flex: 1; // 关键：用 flex:1 替代 min-height:100vh，让内容自适应
+    overflow: hidden; // 新增：禁止 main 容器滚动
+    padding-bottom: 0; // 移除默认 padding，改为在子页面处理
+  
     &.with-tabbar {
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      // 仅标记，不在这加 padding，让子页面自己计算
     }
   }
-}
-
-// 顶部导航栏图标颜色
-:deep(.van-nav-bar) {
-  .van-icon {
-    color: $primary-color;
+  
+  // 移除 safe-area-inset-bottom 的全局 padding，让子页面适配
+  
+  // 顶部导航栏图标颜色
+  :deep(.van-nav-bar) {
+    .van-icon {
+      color: $primary-color;
+    }
+  
+    .van-nav-bar__arrow {
+      color: $primary-color;
+    }
   }
-
-  .van-nav-bar__arrow {
+  
+  // 底部导航栏激活状态颜色
+  :deep(.van-tabbar-item--active) {
     color: $primary-color;
+    .van-icon {
+      color: $primary-color;
+    }
   }
-}
-
-// 底部导航栏激活状态颜色
-:deep(.van-tabbar-item--active) {
-  color: $primary-color;
-
-  .van-icon {
-    color: $primary-color;
-  }
-}
-</style>
+  </style>

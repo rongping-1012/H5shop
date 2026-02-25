@@ -8,28 +8,26 @@
   </van-button>
 </template>
 
-<script setup>
-defineProps({
-  type: {
-    type: String,
-    default: 'default',
-    validator: (value) => {
-      return ['default', 'primary', 'success', 'warning', 'danger'].includes(value)
-    }
-  }
+<script setup lang="ts">
+type ButtonType = 'default' | 'primary' | 'success' | 'warning' | 'danger'
+
+interface Props {
+  type?: ButtonType
+}
+
+withDefaults(defineProps<Props>(), {
+  type: 'default'
 })
 
 // 暴露方法给父组件（如果需要）
 defineExpose({
-  focus: () => {
+  focus: (): void => {
     // 可以暴露 focus 方法
   }
 })
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-
 .base-button {
   &.jd-primary {
     background: $primary-gradient;

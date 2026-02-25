@@ -10,8 +10,6 @@
 <script setup></script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-
 .base-empty {
   padding: 40px 0;
   text-align: center;

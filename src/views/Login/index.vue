@@ -92,8 +92,6 @@ const toForgot = () => {
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-
 .auth-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #fff5f5 0%, #ffe6e1 100%);

@@ -18,8 +18,6 @@ const goHome = () => {
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-
 .not-found {
   height: 100vh;
   display: flex;

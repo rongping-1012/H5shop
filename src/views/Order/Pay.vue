@@ -372,8 +372,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-@import '@/assets/styles/mixins.scss';
+@use '@/assets/styles/mixins.scss' as *;
+
 
 .pay-page {
   min-height: 100vh;

@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-detail" v-if="goods">
+  <div v-if="goods" class="goods-detail">
     <!-- 商品大图 -->
     <van-image :src="goods.image" width="100%" height="260" fit="cover" class="goods-banner" />
 
@@ -145,8 +145,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// variables 已在 vite.config.js 中全局注入，无需重复导入
-@import '@/assets/styles/mixins.scss';
+@use '@/assets/styles/mixins.scss' as *;
+
 
 .goods-detail {
   padding-bottom: 60px;
