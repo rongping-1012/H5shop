@@ -3,6 +3,7 @@
     <van-tabs v-model:active="activeStatus" sticky>
       <van-tab title="全部" name="all" />
       <van-tab title="待支付" name="pending" />
+      <van-tab title="已支付" name="paid" />
       <van-tab title="已完成" name="finished" />
       <van-tab title="已取消" name="cancelled" />
     </van-tabs>
@@ -30,6 +31,7 @@
             />
             <div class="goods-info">
               <div class="goods-name text-ellipsis-2">{{ item.name }}</div>
+              <div v-if="item.spec" class="goods-spec text-ellipsis-1">{{ item.spec }}</div>
               <div class="goods-meta">
                 <span class="price">¥{{ item.price }}</span>
                 <span class="qty">x{{ item.quantity || 1 }}</span>
@@ -40,12 +42,12 @@
 
         <div class="order-card__body">
           <div class="amount">
-            实付：¥{{ order.amount }}
+            实付：¥{{ order.amount || order.totalPrice || 0 }}
             <span v-if="order.couponDiscount && order.couponDiscount > 0" class="coupon-deduction">
               (优惠券抵扣¥{{ order.couponDiscount }})
             </span>
           </div>
-          <div class="time">下单时间：{{ formatTime(order.createdAt) }}</div>
+          <div class="time">下单时间：{{ formatTime(order.createTime) }}</div>
         </div>
         <div class="order-card__footer">
           <van-button
@@ -118,8 +120,8 @@ const setupAutoCancelTimers = () => {
   const threeMinutes = 3 * 60 * 1000 // 3分钟
 
   orders.value.forEach((order) => {
-    if (order.status === 'pending' && order.createdAt) {
-      const elapsed = now - order.createdAt
+    if (order.status === 'pending' && order.createTime) {
+      const elapsed = now - new Date(order.createTime).getTime()
       const remaining = threeMinutes - elapsed
 
       if (remaining > 0) {
@@ -154,7 +156,11 @@ const statusText = (status) => {
   switch (status) {
     case 'pending':
       return '待支付'
-    case 'finished':
+    case 'paid':
+      return '已支付'
+    case 'shipped':
+      return '已发货'
+    case 'completed':
       return '已完成'
     case 'cancelled':
       return '已取消'
@@ -164,7 +170,9 @@ const statusText = (status) => {
 }
 
 const formatTime = (ts) => {
+  if (!ts) return '未知时间'
   const d = new Date(ts)
+  if (isNaN(d.getTime())) return '未知时间'
   const pad = (n) => (n < 10 ? `0${n}` : n)
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
     d.getHours()
@@ -316,6 +324,13 @@ onUnmounted(() => {
   color: $text-color-dark;
   margin-bottom: $spacing-xs;
   @include text-ellipsis(2);
+}
+
+.goods-spec {
+  font-size: $font-size-sm;
+  color: $text-color-light;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis(1);
 }
 
 .goods-meta {

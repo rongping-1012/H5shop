@@ -9,21 +9,12 @@ interface MockOrder {
   items: CartItem[]
   goodsList: CartItem[]
   totalPrice: number
+  amount: number
   createTime: string
   address?: Address
 }
 
-let mockOrders: MockOrder[] = [
-  {
-    id: '20240001',
-    orderNo: '20240001',
-    status: OrderStatus.PENDING,
-    items: [],
-    goodsList: [],
-    totalPrice: 199,
-    createTime: new Date().toISOString()
-  }
-]
+let mockOrders: MockOrder[] = []
 
 interface CreateOrderPayload {
   items: CartItem[]
@@ -48,6 +39,7 @@ export const createOrder = (payload: CreateOrderPayload): Promise<ApiResponse<Mo
     items: payload?.items || [],
     goodsList: payload?.items || [],
     totalPrice: payload?.amount || 0,
+    amount: payload?.amount || 0,
     createTime: new Date().toISOString()
   }
   mockOrders.unshift(newOrder)
@@ -108,7 +100,9 @@ export const payOrder = (orderId: string | number, payData: PayOrderData = {}): 
       // 如果有优惠券信息，保存到订单中
       if (payData.couponId) {
         // 更新订单金额为实际支付金额
-        updated.totalPrice = Math.max(0, item.totalPrice - (payData.discountAmount || 0))
+        const actualAmount = Math.max(0, item.totalPrice - (payData.discountAmount || 0))
+        updated.totalPrice = actualAmount
+        updated.amount = actualAmount
       }
       return updated
     }

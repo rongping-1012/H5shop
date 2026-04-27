@@ -16,6 +16,7 @@
               />
               <div class="info">
                 <div class="name text-ellipsis-2">{{ item.name }}</div>
+                <div v-if="item.spec" class="spec text-ellipsis-1">{{ item.spec }}</div>
                 <div class="price-row">
                   <span class="price">¥{{ item.price }}</span>
                 </div>
@@ -117,7 +118,7 @@ const submitOrder = async () => {
       amount: Number(selectedAmount.value)
     }
     await createOrder(payload)
-    showToast('订单已创建（mock）')
+    showToast('订单已创建')
     selectedItems.value.forEach((it) => {
       cartStore.removeItem(it.id)
     })
@@ -209,6 +210,13 @@ onMounted(() => {
   color: $text-color-dark;
   margin-bottom: $spacing-xs;
   @include text-ellipsis(2);
+}
+
+.spec {
+  font-size: $font-size-sm;
+  color: $text-color-light;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis(1);
 }
 
 .price-row {

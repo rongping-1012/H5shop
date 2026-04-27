@@ -17,19 +17,32 @@ export function getCartList(): Promise<ApiResponse<CartItem[]>> {
   })
 }
 
+// 重置购物车数据（用于测试）
+export function resetCart(): void {
+  cartItems = []
+}
+
 /**
  * 添加商品到购物车
  */
 export function addToCart(product: Goods): Promise<ApiResponse<CartItem[]>> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const existingItem = cartItems.find((item) => item.id === product.id)
+      // 根据商品id和规格来判断是否已存在
+      const existingItem = cartItems.find((item) => 
+        item.id === product.id && item.spec === product.spec
+      )
       const quantity = product.quantity || 1
       if (existingItem) {
         existingItem.quantity += quantity
       } else {
+        // 为不同规格的商品生成唯一id
+        const uniqueId = product.spec 
+          ? product.id * 1000 + cartItems.length + 1 
+          : product.id
         cartItems.push({
           ...product,
+          id: uniqueId,
           quantity: quantity,
           selected: true
         })

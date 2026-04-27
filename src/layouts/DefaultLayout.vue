@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/store/modules/cart'
 
@@ -52,6 +52,8 @@ const router = useRouter()
 const cartStore = useCartStore()
 
 const active = ref(0)
+let startX = 0
+let startY = 0
 
 // 需要显示底部导航的路径
 const tabBarPaths = ['/home', '/category', '/cart', '/user']
@@ -81,6 +83,27 @@ const onClickSearch = () => {
   router.push('/search')
 }
 
+// 手势返回
+const handleTouchStart = (e) => {
+  startX = e.touches[0].clientX
+  startY = e.touches[0].clientY
+}
+
+const handleTouchEnd = (e) => {
+  const endX = e.changedTouches[0].clientX
+  const endY = e.changedTouches[0].clientY
+  const deltaX = endX - startX
+  const deltaY = endY - startY
+  
+  // 右划且水平方向移动距离大于垂直方向
+  if (deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 不是首页且不是底部导航页面
+    if (route.path !== '/' && !tabBarPaths.includes(route.path)) {
+      router.back()
+    }
+  }
+}
+
 // 监听路由变化
 watch(
   () => route.path,
@@ -93,6 +116,17 @@ watch(
   },
   { immediate: true }
 )
+
+// 生命周期
+onMounted(() => {
+  document.addEventListener('touchstart', handleTouchStart)
+  document.addEventListener('touchend', handleTouchEnd)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('touchstart', handleTouchStart)
+  document.removeEventListener('touchend', handleTouchEnd)
+})
 </script>
 
 <style lang="scss" scoped>

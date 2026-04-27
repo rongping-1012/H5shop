@@ -5,7 +5,7 @@ const mockUser: UserInfo = {
   id: 1,
   username: 'testuser',
   nickname: '椰椰',
-  avatar: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg',
+  avatar: 'http://q6.itc.cn/q_70/images03/20250306/355fba6a5cb049f5b98c2ed9f03cc5e1.jpeg',
   email: 'test@example.com',
   phone: '13800138000'
 }

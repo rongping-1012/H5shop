@@ -41,7 +41,7 @@ const userStore = useUserStore()
 
 const isLogin = computed(() => userStore.isLogin)
 const userInfo = computed(() => userStore.userInfo)
-const defaultAvatar = 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg'
+const defaultAvatar = 'https://q6.itc.cn/q_70/images03/20250306/355fba6a5cb049f5b98c2ed9f03cc5e1.jpeg'
 
 const goLogin = () => {
   router.push('/login')

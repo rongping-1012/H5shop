@@ -6,12 +6,33 @@
     <!-- 商品基础信息 -->
     <div class="base-info">
       <div class="price-row">
-        <span class="current-price">¥{{ goods.price }}</span>
+        <span class="current-price">¥{{ selectedPrice }}</span>
         <span v-if="goods.originalPrice" class="original-price"> ¥{{ goods.originalPrice }} </span>
       </div>
       <div class="title">{{ goods.name }}</div>
       <div v-if="goods.desc" class="desc">
         {{ goods.desc }}
+      </div>
+    </div>
+
+    <!-- 规格选择 -->
+    <div v-if="goods.specs && goods.specs.length" class="section">
+      <div class="section-title">规格选择</div>
+      <div class="section-body">
+        <div v-for="(spec, index) in goods.specs" :key="index" class="spec-item">
+          <div class="spec-name">{{ spec.name }}</div>
+          <div class="spec-options">
+            <van-button
+              v-for="(option, optIndex) in spec.options"
+              :key="optIndex"
+              :type="selectedSpecs[spec.name] === option.value ? 'primary' : 'default'"
+              @click="selectSpec(spec.name, option.value, option.price)"
+              class="spec-option"
+            >
+              {{ option.value }}
+            </van-button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -73,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showFailToast, showToast } from 'vant'
 import { getGoodsDetail } from '@/api/goods'
@@ -86,6 +107,8 @@ const { addToCart } = useCart()
 
 const goods = ref(null)
 const loading = ref(false)
+const selectedSpecs = ref({})
+const selectedPrice = ref(0)
 
 const fetchDetail = async () => {
   const id = route.query.id
@@ -100,6 +123,16 @@ const fetchDetail = async () => {
     const res = await getGoodsDetail(id)
     if (res.code === 200 && res.data) {
       goods.value = res.data
+      selectedPrice.value = res.data.price
+      // 初始化默认规格
+      if (res.data.specs && res.data.specs.length) {
+        res.data.specs.forEach(spec => {
+          if (spec.options && spec.options.length) {
+            selectedSpecs.value[spec.name] = spec.options[0].value
+            selectedPrice.value = spec.options[0].price
+          }
+        })
+      }
     } else {
       showFailToast('未找到该商品')
       router.back()
@@ -113,22 +146,40 @@ const fetchDetail = async () => {
   }
 }
 
+const selectSpec = (specName, value, price) => {
+  selectedSpecs.value[specName] = value
+  selectedPrice.value = price
+}
+
 const handleAddCart = () => {
   if (goods.value) {
-    addToCart(goods.value)
+    const productWithSpec = {
+      ...goods.value,
+      price: selectedPrice.value,
+      spec: Object.entries(selectedSpecs.value).map(([key, value]) => `${key}: ${value}`).join(' ')
+    }
+    addToCart(productWithSpec)
   }
 }
 
 const handleBuyNow = async () => {
   if (!goods.value) return
   try {
-    const payload = {
-      items: [{ ...goods.value, quantity: 1 }],
-      amount: Number(goods.value.price)
+    const productWithSpec = {
+      ...goods.value,
+      price: selectedPrice.value,
+      spec: Object.entries(selectedSpecs.value).map(([key, value]) => `${key}: ${value}`).join(' ')
     }
-    await createOrder(payload)
-    showToast('订单已创建（mock）')
-    router.push('/order')
+    const payload = {
+      items: [{ ...productWithSpec, quantity: 1 }],
+      amount: Number(selectedPrice.value)
+    }
+    const res = await createOrder(payload)
+    showToast('订单已创建')
+    router.push({
+      path: '/order/pay',
+      query: { id: res.data.id }
+    })
   } catch (error) {
     console.error('立即购买失败:', error)
     showFailToast('下单失败')
@@ -231,6 +282,26 @@ onMounted(() => {
 
 .detail-images :deep(.van-image) + :deep(.van-image) {
   margin-top: $spacing-sm;
+}
+
+.spec-item {
+  margin-bottom: $spacing-base;
+  
+  .spec-name {
+    font-size: $font-size-base;
+    color: $text-color-dark;
+    margin-bottom: $spacing-sm;
+  }
+  
+  .spec-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    
+    .spec-option {
+      margin-bottom: $spacing-xs;
+    }
+  }
 }
 
 .bottom-bar {

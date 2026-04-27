@@ -22,6 +22,7 @@
         />
         <div class="goods-info">
           <div class="goods-name text-ellipsis-2">{{ item.name }}</div>
+          <div v-if="item.spec" class="goods-spec text-ellipsis-1">{{ item.spec }}</div>
           <div class="goods-meta">
             <span class="price">¥{{ item.price }}</span>
             <span class="qty">x{{ item.quantity || 1 }}</span>
@@ -155,12 +156,14 @@
             @click="handleSelectCoupon(coupon)"
           >
             <div class="coupon-option-left">
+              <div class="coupon-option-name">{{ coupon.name }}</div>
               <div class="coupon-option-value">
-                <span v-if="coupon.type === 'cash'">¥{{ coupon.value }}</span>
-                <span v-else-if="coupon.type === 'discount'">{{ coupon.value }}折</span>
+                <span v-if="coupon.type === 'cash'">¥{{ coupon.amount }}</span>
+                <span v-else-if="coupon.type === 'discount'">{{ coupon.amount }}折</span>
                 <span v-else>免邮</span>
               </div>
               <div class="coupon-option-desc">{{ coupon.desc }}</div>
+              <div class="coupon-option-time">有效期至：{{ coupon.expireTime }}</div>
             </div>
             <div class="coupon-option-right">
               <van-icon v-if="selectedCoupon?.id === coupon.id" name="success" color="#ee0a24" />
@@ -218,7 +221,11 @@ const statusText = (status) => {
   switch (status) {
     case 'pending':
       return '待支付'
-    case 'finished':
+    case 'paid':
+      return '已支付'
+    case 'shipped':
+      return '已发货'
+    case 'completed':
       return '已完成'
     case 'cancelled':
       return '已取消'
@@ -240,12 +247,12 @@ const getDiscountAmount = () => {
   const coupon = selectedCoupon.value
   const amount = order.value.amount
   
-  if (amount < coupon.minAmount) return 0
+  if (amount < (coupon.minAmount || 0)) return 0
   
   if (coupon.type === 'cash') {
-    return coupon.value
+    return coupon.amount
   } else if (coupon.type === 'discount') {
-    return Math.round(amount * (1 - coupon.value / 100))
+    return Math.round(amount * (1 - coupon.amount / 100))
   } else if (coupon.type === 'shipping') {
     // 免邮券，这里假设邮费是 10 元
     return 10
@@ -301,7 +308,7 @@ const handleSelectAddress = (address) => {
 // 格式化地址显示
 const formatAddress = (address) => {
   if (!address) return ''
-  return `${address.province}${address.city}${address.district}${address.address}${address.detail}`
+  return `${address.province || ''}${address.city || ''}${address.district || ''}${address.address || ''}${address.detail || ''}`
 }
 
 // 跳转到添加地址页面
@@ -356,7 +363,7 @@ const handlePay = async () => {
       discountAmount: selectedCoupon.value ? getDiscountAmount() : 0
     }
     await payOrder(order.value.id, payData)
-    showToast('支付成功（mock）')
+    showToast('支付成功')
     router.replace('/order')
   } catch (error) {
     console.error('支付失败:', error)
@@ -416,6 +423,13 @@ onMounted(() => {
   color: $text-color-dark;
   margin-bottom: $spacing-xs;
   @include text-ellipsis(2);
+}
+
+.goods-spec {
+  font-size: $font-size-sm;
+  color: $text-color-light;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis(1);
 }
 
 .goods-meta {
@@ -567,11 +581,24 @@ onMounted(() => {
   flex: 1;
 }
 
+.coupon-option-name {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-color-dark;
+  margin-bottom: $spacing-xs;
+}
+
 .coupon-option-value {
   font-size: $font-size-lg;
   font-weight: 600;
   color: $primary-color;
   margin-bottom: $spacing-xs;
+}
+
+.coupon-option-time {
+  font-size: $font-size-sm;
+  color: $text-color-light;
+  margin-top: $spacing-xs;
 }
 
 .coupon-option-desc {

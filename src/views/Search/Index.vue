@@ -38,8 +38,8 @@
         v-for="item in results"
         :key="item.id"
         :product="item"
+        :show-add-cart="false"
         @click="goToDetail"
-        @add-cart="handleAddCart"
       />
 
       <BaseEmpty v-if="!loading && !results.length">

@@ -67,6 +67,14 @@ export interface Goods {
   categoryId: number
   quantity?: number
   selected?: boolean
+  specs?: Array<{
+    name: string
+    options: Array<{
+      value: string
+      price: number
+    }>
+  }>
+  spec?: string
 }
 
 export interface GoodsListParams extends PaginationParams {

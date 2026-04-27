@@ -1,7 +1,7 @@
 import type { ApiResponse, Address, AddressForm } from '@/types'
 
 // Mock 地址数据
-let mockAddresses: Address[] = [
+const mockAddresses: Address[] = [
   {
     id: 1,
     name: '张三',

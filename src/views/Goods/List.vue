@@ -34,8 +34,8 @@
           :key="item.id"
           :product="item"
           :data-index="startIndex + index"
+          :show-add-cart="false"
           @click="goToDetail"
-          @add-cart="handleAddCart"
         />
       </template>
     </VirtualList>
@@ -68,6 +68,7 @@ import BaseEmpty from '@/components/base/BaseEmpty.vue'
 import { useCart } from '@/composables/useCart'
 import { throttle } from '@/utils/throttle'
 import type { Goods } from '@/types'
+import { mockGoods } from '@/api/goods'
 
 const router = useRouter()
 const list = ref<Goods[]>([])
@@ -88,56 +89,18 @@ const containerHeight = computed(() => {
 
 // 生成模拟商品数据
 const generateMockGoods = (count: number): Goods[] => {
-  const goodsNames = [
-    'Apple iPhone 15 Pro Max 256GB 深空黑色',
-    '华为 Mate 60 Pro 12GB+512GB 雅川青',
-    '小米14 Ultra 16GB+1TB 钛金属',
-    'OPPO Find X7 Ultra 16GB+512GB 大漠银月',
-    'vivo X100 Pro 16GB+512GB 星迹蓝',
-    '荣耀 Magic6 Pro 16GB+1TB 流云紫',
-    'Samsung Galaxy S24 Ultra 12GB+512GB',
-    'MacBook Pro 16英寸 M3 Max 36GB+1TB',
-    'iPad Pro 12.9英寸 M2 256GB 深空灰',
-    'AirPods Pro 第二代 主动降噪',
-    'Apple Watch Series 9 GPS 45mm',
-    'Sony WH-1000XM5 头戴式降噪耳机',
-    'Nintendo Switch OLED 白色',
-    'PlayStation 5 光驱版',
-    'Xbox Series X 1TB',
-    'Dyson V15 Detect 无线吸尘器',
-    '戴森 Supersonic 吹风机',
-    '飞利浦 电动牙刷 HX9954',
-    '科沃斯 T20 Pro 扫地机器人',
-    '石头 G20 扫拖一体机器人'
-  ]
-
-  const images: string[] = [
-    'https://img01.yzcdn.cn/vant/ipad.jpeg',
-    'https://img01.yzcdn.cn/vant/cat.jpeg',
-    'https://img01.yzcdn.cn/vant/apple-1.jpg',
-    'https://img01.yzcdn.cn/vant/apple-2.jpg',
-    'https://img01.yzcdn.cn/vant/apple-3.jpg'
-  ]
-
-  return Array.from({ length: count }, (_, index): Goods => {
-    const id = index + 1
-    const nameIndex = index % goodsNames.length
-    const imageIndex = index % images.length
-    const basePrice = Math.floor(Math.random() * 5000) + 1000
-    const hasDiscount = Math.random() > 0.5
-    const selectedImage: string = images[imageIndex] || images[0]
-
-    return {
-      id,
-      name: `${goodsNames[nameIndex]} - ${id}`,
-      desc: `这是第 ${id} 件商品的描述信息，展示了商品的详细特点和优势`,
-      price: basePrice,
-      originalPrice: hasDiscount ? basePrice + Math.floor(Math.random() * 1000) : undefined,
-      image: selectedImage,
-      categoryId: Math.floor(Math.random() * 8) + 1,
-      quantity: Math.floor(Math.random() * 100) + 1
-    }
-  })
+  const result: Goods[] = []
+  
+  for (let i = 0; i < count; i++) {
+    const index = i % mockGoods.length
+    const goods = mockGoods[index]
+    result.push({
+      ...goods,
+      id: i + 1
+    })
+  }
+  
+  return result
 }
 
 // 获取商品列表（测试模式：生成5000条数据）
